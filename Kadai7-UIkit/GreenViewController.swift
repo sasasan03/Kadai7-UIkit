@@ -7,6 +7,14 @@
 
 import UIKit
 
+struct emptyError: Error {
+    let emptyError: String
+}
+
+//struct Num {
+//    let num: String
+//}
+
 class GreenViewController: UIViewController {
 
     @IBOutlet weak var numText1: UITextField!
@@ -14,15 +22,37 @@ class GreenViewController: UIViewController {
     @IBOutlet weak var total: UILabel!
     
     @IBAction func minusButton(_ sender: Any)  {
-        guard let num1 = Int(numText1.text ?? "") else {
-            return
+        let numText1 = numText1.text ?? ""
+        let numText2 = numText2.text ?? ""
+        let num1 = textFieldCheck(numText: numText1)
+        let num2 = textFieldCheck(numText: numText2)
+        switch (num1,num2) { //switch はブレイク？ ifかswitch
+        case (.success(let num1), .success(let num2)):
+            guard let n1 = Int(num1) else {
+                break
+            }
+            guard let n2 = Int(num2) else {
+                break
+            }
+            total.text = String(n1 - n2)
+        case (.failure(let error), .success(_)):
+            total.text = error.emptyError
+        case (.success(_), .failure(let error)):
+            total.text = error.emptyError
+        case (.failure(let e1), .failure(_)):
+            total.text = e1.emptyError
+//        default: break//一度無くして
         }
-        guard let num2 = Int(numText2.text ?? "") else {
-            return 
-        }
-        total.text = String(num1 + num2)
+        
     }
     
+    func textFieldCheck(numText: String) -> Result<String, emptyError>{//optional型で返す
+        if !numText.isEmpty {
+            return Result.success(numText)
+        }
+        return Result.failure(emptyError(emptyError: "空だよ"))
+    }
+
 
     /*
     // MARK: - Navigation
